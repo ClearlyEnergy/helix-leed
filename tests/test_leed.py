@@ -15,6 +15,11 @@ class LeedTest(unittest.TestCase):
         result = self.leed.query_leed('activities/leed-10549162')
         self.assertTrue(result['status'],'success')
         self.assertEqual(result['green_assessment_property_rating'],'Certified')
+        
+    def test_page_was_not_scored(self):
+        result = self.leed.query_leed('/activities/leed-10391892')
+        self.assertTrue(result['status'],'error')
+        self.assertEqual(result['message'],'not rated')
 
     def test_retrieve_list(self):
         building_ids = self.leed.query_leed_building_ids()

@@ -37,7 +37,9 @@ class LeedHelix:
         For example:
            self.retrieve_list_content(self)
         """
-        param_string = '&page=1&type=advanced&search[place_ids]=6611&search[flat_rating_program_ids]=Certification%2F%2F37'
+        param_string = '&page=1&type=advanced&search[place_ids]=6611&search[flat_rating_program_ids]=Certification%2F%2F37'        
+#        &search[after_date]=2015-01-01
+#        &search[before_date]=2018-12-31
 
         page = requests.get(self.search_url+param_string)
         tree = html.fromstring(page.content)     
@@ -63,10 +65,6 @@ class LeedHelix:
         for page_num in range(1,num_pages+1):
             building_ids += self.__retrieve_list_content(page_num)
 
-        print building_ids
-        
-#        &search[after_date]=
-#        &search[before_date]=
         return building_ids
         
     def query_leed(self, building_id):
@@ -90,12 +88,15 @@ class LeedHelix:
         
         rating = tree.xpath('//p[@class="lead"]/strong/text()')
         rating = re.match('(LEED-HOMES) (v\d{4}) (Silver|Certified|Gold|Platinum)', rating[0])
-        if rating.group:
+        if rating:
             result['green_assessment_name'] = 'LEED for Homes'
             result['green_assessment_property_source'] = 'U.S. Green Building Council'
             result['green_assessment_property_rating'] = rating.group(3)
             result['green_assessment_property_version'] = rating.group(2)
             result['green_assessment_property_url'] = self.activities_url+building_id
+        else:
+            return {'status': 'error', 'message': 'not rated'}
+            
         date = tree.xpath('//p[@class="lead"]/text()')
         date = re.match('\non (\d{2}/\d{2}/\d{4})', date[1])
         result['green_assessment_property_date'] = date
@@ -110,3 +111,4 @@ class LeedHelix:
         result['status'] = 'success'
         
         return result
+    
