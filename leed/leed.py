@@ -18,52 +18,59 @@ class LeedHelix:
         self.activities_url = GBIG_ACTIVITIES
         self.search_url = GBIG_ADVANCED
 
-    def __retrieve_list_content(self, page_num):
+    def __retrieve_list_content(self, page_num, after_date=None, before_date=None):
         """Retrieve GBIG list page content
 
         For example:
            self.retrieve_list_content(self, page)
         """
         param_string = '&page='+str(page_num)+'&type=advanced&search[place_ids]=6611&search[flat_rating_program_ids]=Certification%2F%2F37'
+        if after_date is not None:
+            param_string += '&search[after_date]='+after_date.strftime("%Y-%m-%d")
 
         page = requests.get(self.search_url+param_string)
         tree = html.fromstring(page.content)
         rows = tree.xpath('//div[@class="row result-row"]/div[@class="col-sm-4"]/a/@href')
         return rows
 
-    def __retrieve_total_pages(self):
+    def __retrieve_total_pages(self, after_date=None, before_date=None):
         """Retrieve GBIG number of properties in region
 
         For example:
            self.retrieve_list_content(self)
         """
         param_string = '&page=1&type=advanced&search[place_ids]=6611&search[flat_rating_program_ids]=Certification%2F%2F37'        
-#        &search[after_date]=2015-01-01
+        if after_date is not None:
+            param_string += '&search[after_date]='+after_date.strftime("%Y-%m-%d")
+#        
 #        &search[before_date]=2018-12-31
 
         page = requests.get(self.search_url+param_string)
         tree = html.fromstring(page.content)     
         total_entries = tree.xpath('//*[@id="search_form"]/div[3]/div[1]/div/span/text()')
         total_entries = re.findall('(\d+)', total_entries[0])
-        num_pages = int(total_entries[2])//25 + 1
+        if len(total_entries) == 1:
+            num_pages = 1
+        else:
+            num_pages = int(total_entries[2])//25 + 1
         return num_pages
     
-    def query_leed_building_ids(self):
+    def query_leed_building_ids(self, after_date=None, before_date=None):
         """query_leed_building_ids
         Parameters:
             Geography: Geographic parameter to narrow search by, typically State
-            start_date: optional, retrieve only records created on or after start date, format 'yyyy-mm-dd'
-            end_date: optional, retrieve only records created before end date, use only in conunction with start date
+            after_date: optional, retrieve only records created on or after start date, format 'yyyy-mm-dd'
+            before_date: optional, retrieve only records created before end date, use only in conunction with start date
 
         Returns:
             list of ids
         For example:
            client.query_leed_buildling_ids('MA')
         """        
-        num_pages = self.__retrieve_total_pages()
+        num_pages = self.__retrieve_total_pages(after_date=after_date, before_date=before_date)
         building_ids = []
         for page_num in range(1,num_pages+1):
-            building_ids += self.__retrieve_list_content(page_num)
+            building_ids += self.__retrieve_list_content(page_num, after_date=after_date, before_date=before_date)
 
         return building_ids
         
