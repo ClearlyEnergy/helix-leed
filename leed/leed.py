@@ -108,12 +108,16 @@ class LeedHelix:
         date = re.match('\non (\d{2}/\d{2}/\d{4})', date[1])
         result['green_assessment_property_date'] = date.group(1)
         address = tree.xpath('//address/a/text()')
+        
         if address:
             # use google maps to get zip code
             address = address[0].split(',')
-            result['address_line_1'] = address[0].lstrip()
-            result['city'] = address[1].lstrip()
-            result['state'] = address[2].lstrip()
+            num_elem = len(address)
+            if num_elem < 4:
+                    return {'status': 'error', 'message': 'address could not be parsed'}
+            result['address_line_1'] = address[num_elem-4].lstrip()
+            result['city'] = address[num_elem-3].lstrip()
+            result['state'] = address[num_elem-2].lstrip()
         
         result['status'] = 'success'
         
