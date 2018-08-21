@@ -30,7 +30,11 @@ class LeedHelix:
 
         page = requests.get(self.search_url+param_string)
         tree = html.fromstring(page.content)
+        certificates = tree.xpath('//div[@class="row result-row"]/div[@class="col-sm-3"]/div[contains(@class,"cert-badge")]/text()')
         rows = tree.xpath('//div[@class="row result-row"]/div[@class="col-sm-4"]/a/@href')
+        # removes rows which are only registered and not certified buildings
+        registered_indices = [i for i, e in enumerate(certificates) if e == 'Registered']
+        rows = [x for i,x in enumerate(rows) if i not in registered_indices]        
         return rows
 
     def __retrieve_total_pages(self, after_date=None, before_date=None):
