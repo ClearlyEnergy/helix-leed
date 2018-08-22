@@ -12,7 +12,7 @@ class LeedTest(unittest.TestCase):
         self.leed = leed.LeedHelix()
 
     def test_page_has_score(self):
-        result = self.leed.query_leed('activities/leed-10549162')
+        result = self.leed.query_leed('/activities/leed-10549162')
         self.assertTrue(result['status'],'success')
         self.assertEqual(result['green_assessment_property_rating'],'Certified')
         
@@ -26,5 +26,9 @@ class LeedTest(unittest.TestCase):
         self.assertGreater(len(building_ids), 0)
 
     def test_fail_bad_bulding_id(self):
-        result = self.leed.query_leed('activities/leed-11111111')
+        result = self.leed.query_leed('/activities/leed-11111111')
         self.assertTrue(result['status'],'error')
+
+    def gets_postal_code(self):
+        result = self.leed.query_leed('/activities/leed-10391892')
+        self.assertTrue(result['postal_code'],'05403')

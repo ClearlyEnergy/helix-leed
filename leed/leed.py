@@ -3,20 +3,20 @@ from lxml import html
 import re
 import json
 import datetime
+import googlemaps
+import os
+
 """LEED connect to U.S. GBC GBIG database retrieves score and output values"""
 
-# select between sandbox and production
-# URL is currently set to select the HES 2.0 beta
-#GBIG_URL = 'https://sandbeta.hesapi.labworks.org/st_api/wsdl' #sandbeta
-GBIG_ACTIVITIES = 'http://www.gbig.org/'
+GBIG_ACTIVITIES = 'http://www.gbig.org'
 GBIG_ADVANCED = 'http://www.gbig.org/search/advanced?&utf8=%E2%9C%94&search[include_non_certified]=0&search[search_type]=Projects&search[text_search_mode]=all&view=list'
 
-# An instance of this class is used to access building records in the LEED
-# database from the context of a HES user. 
+# An instance of this class is used to access building records on the LEED web site
 class LeedHelix:
     def __init__(self):
         self.activities_url = GBIG_ACTIVITIES
         self.search_url = GBIG_ADVANCED
+        self.gmaps = googlemaps.Client(os.environ.get('GOOGLEMAPS_KEY', ''))
 
     def __retrieve_list_content(self, page_num, after_date=None, before_date=None):
         """Retrieve GBIG list page content
@@ -122,6 +122,19 @@ class LeedHelix:
             result['address_line_1'] = address[num_elem-4].lstrip()
             result['city'] = address[num_elem-3].lstrip()
             result['state'] = address[num_elem-2].lstrip()
+            
+            # geocode results and add zip code
+            if result['address_line_1'] and result['city'] and result['state']:
+                geocode_result = self.gmaps.geocode(",".join([result['address_line_1'], result['city'], result['state']]))
+                if geocode_result:
+                    for comp in geocode_result[0]['address_components']:
+                        if 'postal_code' in comp['types']:
+                            result['postal_code'] = comp['short_name']
+                            break
+                    #reject results with "APPROXIMATE" or "RANGE_INTERPOLATED" or "GEOMETRIC_CENTER" location_type
+                    if geocode_result[0]['geometry']['location_type'] in ('ROOFTOP'):
+                        result['latitude'] = geocode_result[0]['geometry']['location']['lat']
+                        result['longitude'] = geocode_result[0]['geometry']['location']['lng']
         
         result['status'] = 'success'
         
