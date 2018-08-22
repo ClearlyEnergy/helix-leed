@@ -29,6 +29,6 @@ class LeedTest(unittest.TestCase):
         result = self.leed.query_leed('/activities/leed-11111111')
         self.assertTrue(result['status'],'error')
 
-    def gets_postal_code(self):
-        result = self.leed.query_leed('/activities/leed-10391892')
+    def test_gets_postal_code(self):
+        result = self.leed.query_leed('/activities/leed-10549162')
         self.assertTrue(result['postal_code'],'05403')
