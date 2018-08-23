@@ -21,8 +21,8 @@ class LeedTest(unittest.TestCase):
         self.assertTrue(result['status'],'error')
         self.assertEqual(result['message'],'not rated')
 
-    def test_retrieve_list(self):
-        building_ids = self.leed.query_leed_building_ids()
+    def test_retrieve_list_for_valid_geo_id(self):
+        building_ids = self.leed.query_leed_building_ids('6611')
         self.assertGreater(len(building_ids), 0)
 
     def test_fail_bad_bulding_id(self):

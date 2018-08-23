@@ -18,13 +18,13 @@ class LeedHelix:
         self.search_url = GBIG_ADVANCED
         self.gmaps = googlemaps.Client(os.environ.get('GOOGLEMAPS_KEY', ''))
 
-    def __retrieve_list_content(self, page_num, after_date=None, before_date=None):
+    def __retrieve_list_content(self, page_num, geo_id, after_date=None, before_date=None):
         """Retrieve GBIG list page content
 
         For example:
            self.retrieve_list_content(self, page)
         """
-        param_string = '&page='+str(page_num)+'&type=advanced&search[place_ids]=6611&search[flat_rating_program_ids]=Certification%2F%2F37'
+        param_string = '&page='+str(page_num)+'&type=advanced&search[place_ids]='+geo_id+'&search[flat_rating_program_ids]=Certification%2F%2F37'
         if after_date is not None:
             param_string += '&search[after_date]='+after_date.strftime("%Y-%m-%d")
 
@@ -37,13 +37,13 @@ class LeedHelix:
         rows = [x for i,x in enumerate(rows) if i not in registered_indices]        
         return rows
 
-    def __retrieve_total_pages(self, after_date=None, before_date=None):
+    def __retrieve_total_pages(self, geo_id, after_date=None, before_date=None):
         """Retrieve GBIG number of properties in region
 
         For example:
            self.retrieve_list_content(self)
         """
-        param_string = '&page=1&type=advanced&search[place_ids]=6611&search[flat_rating_program_ids]=Certification%2F%2F37'        
+        param_string = '&page=1&type=advanced&search[place_ids]='+geo_id+'&search[flat_rating_program_ids]=Certification%2F%2F37'        
         if after_date is not None:
             param_string += '&search[after_date]='+after_date.strftime("%Y-%m-%d")
 #        
@@ -59,7 +59,7 @@ class LeedHelix:
             num_pages = int(total_entries[2])//25 + 1
         return num_pages
     
-    def query_leed_building_ids(self, after_date=None, before_date=None):
+    def query_leed_building_ids(self, geo_id, after_date=None, before_date=None):
         """query_leed_building_ids
         Parameters:
             Geography: Geographic parameter to narrow search by, typically State
@@ -71,10 +71,10 @@ class LeedHelix:
         For example:
            client.query_leed_buildling_ids('MA')
         """        
-        num_pages = self.__retrieve_total_pages(after_date=after_date, before_date=before_date)
+        num_pages = self.__retrieve_total_pages(geo_id=geo_id, after_date=after_date, before_date=before_date)
         building_ids = []
         for page_num in range(1,num_pages+1):
-            building_ids += self.__retrieve_list_content(page_num, after_date=after_date, before_date=before_date)
+            building_ids += self.__retrieve_list_content(page_num, geo_id=geo_id, after_date=after_date, before_date=before_date)
 
         return building_ids
         
