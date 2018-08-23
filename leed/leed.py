@@ -52,12 +52,15 @@ class LeedHelix:
         page = requests.get(self.search_url+param_string)
         tree = html.fromstring(page.content)     
         total_entries = tree.xpath('//*[@id="search_form"]/div[3]/div[1]/div/span/text()')
-        total_entries = re.findall('(\d+)', total_entries[0])
-        if len(total_entries) == 1:
-            num_pages = 1
+        if not total_entries:
+            return None
         else:
-            num_pages = int(total_entries[2])//25 + 1
-        return num_pages
+            total_entries = re.findall('(\d+)', total_entries[0])
+            if len(total_entries) == 1:
+                num_pages = 1
+            else:
+                num_pages = int(total_entries[2])//25 + 1
+            return num_pages
     
     def query_leed_building_ids(self, geo_id, after_date=None, before_date=None):
         """query_leed_building_ids
@@ -73,9 +76,10 @@ class LeedHelix:
         """        
         num_pages = self.__retrieve_total_pages(geo_id=geo_id, after_date=after_date, before_date=before_date)
         building_ids = []
-        for page_num in range(1,num_pages+1):
-            building_ids += self.__retrieve_list_content(page_num, geo_id=geo_id, after_date=after_date, before_date=before_date)
-
+        if num_pages is not None:
+            for page_num in range(1,num_pages+1):
+                building_ids += self.__retrieve_list_content(page_num, geo_id=geo_id, after_date=after_date, before_date=before_date)
+            
         return building_ids
         
     def query_leed(self, building_id):
