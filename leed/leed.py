@@ -115,6 +115,10 @@ class LeedHelix:
         date = tree.xpath('//p[@class="lead"]/text()')
         date = re.match('\non (\d{2}/\d{2}/\d{4})', date[1])
         result['green_assessment_property_date'] = date.group(1)
+        
+        property_type = tree.xpath('//table[@class="table"]/tr[th//text()[contains(., "Space Type")]]/td/text()')
+        result['use_description'] = property_type[0]
+        
         address = tree.xpath('//address/a/text()')
         
         if address:
