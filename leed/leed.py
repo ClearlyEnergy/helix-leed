@@ -116,6 +116,9 @@ class LeedHelix:
         date = re.match('\non (\d{2}/\d{2}/\d{4})', date[1])
         result['green_assessment_property_date'] = date.group(1)
         
+        rating = tree.xpath('//h2[@class="points-achieved"]/span/text()')
+        result['leed_score'] = rating[0]+'/'+rating[1]
+        
         property_type = tree.xpath('//table[@class="table"]/tr[th//text()[contains(., "Space Type")]]/td/text()')
         result['use_description'] = property_type[0]
         
