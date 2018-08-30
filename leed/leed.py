@@ -106,7 +106,7 @@ class LeedHelix:
         if rating:
             result['green_assessment_name'] = 'LEED for Homes'
             result['green_assessment_property_source'] = 'U.S. Green Building Council'
-            result['green_assessment_property_rating'] = rating.group(3)
+            result['green_assessment_property_rating'] = rating.group(3).upper()
             result['green_assessment_property_version'] = rating.group(2)
             result['green_assessment_property_url'] = self.activities_url+building_id
         else:
@@ -117,7 +117,7 @@ class LeedHelix:
         result['green_assessment_property_date'] = date.group(1)
         
         rating = tree.xpath('//h2[@class="points-achieved"]/span/text()')
-        result['leed_score'] = rating[0]+'/'+rating[1]
+        result['green_assessment_property_extra_data'] = {'leed_score': rating[0]+'/'+rating[1]}
         
         property_type = tree.xpath('//table[@class="table"]/tr[th//text()[contains(., "Space Type")]]/td/text()')
         result['use_description'] = property_type[0]
