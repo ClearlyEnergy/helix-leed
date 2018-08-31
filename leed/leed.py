@@ -102,7 +102,7 @@ class LeedHelix:
             return {'status': 'error', 'message': title[0]}            
         
         rating = tree.xpath('//p[@class="lead"]/strong/text()')
-        rating = re.match('(LEED-HOMES) (v\d{4}) (Silver|Certified|Gold|Platinum)', rating[0])
+        rating = re.match('(LEED-HOMES).* (v\d{4}) (Silver|Certified|Gold|Platinum)', rating[0])
         if rating:
             result['green_assessment_name'] = 'LEED for Homes'
             result['green_assessment_property_source'] = 'U.S. Green Building Council'
@@ -142,8 +142,8 @@ class LeedHelix:
                         if 'postal_code' in comp['types']:
                             result['postal_code'] = comp['short_name']
                             break
-                    #reject results with "APPROXIMATE" or "RANGE_INTERPOLATED" or "GEOMETRIC_CENTER" location_type
-                    if geocode_result[0]['geometry']['location_type'] in ('ROOFTOP'):
+                    #reject results with "APPROXIMATE" or "RANGE_INTERPOLATED" location_type
+                    if geocode_result[0]['geometry']['location_type'] in ('ROOFTOP','GEOMETRIC CENTER'):
                         result['latitude'] = geocode_result[0]['geometry']['location']['lat']
                         result['longitude'] = geocode_result[0]['geometry']['location']['lng']
         
