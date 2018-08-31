@@ -130,7 +130,11 @@ class LeedHelix:
             num_elem = len(address)
             if num_elem < 4:
                     return {'status': 'error', 'message': 'address could not be parsed'}
-            result['address_line_1'] = address[num_elem-4].lstrip()
+#            result['address_line_1'] = address[num_elem-4].lstrip()
+            if address[0].lstrip() == 'InSite':
+                result['address_line_1'] = address[1].lstrip()
+            else:
+                result['address_line_1'] = address[0].lstrip()
             result['city'] = address[num_elem-3].lstrip()
             result['state'] = address[num_elem-2].lstrip()
             
