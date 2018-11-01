@@ -122,7 +122,8 @@ class LeedHelix:
         result['green_assessment_property_extra_data'] = {'leed_score': rating[0]+'/'+rating[1]}
         
         property_type = tree.xpath('//table[@class="table"]/tr[th//text()[contains(., "Space Type")]]/td/text()')
-        result['property_type'] = property_type[0]
+        if property_type:
+            result['property_type'] = property_type[0]
         
         address = tree.xpath('//address/a/text()')
         
