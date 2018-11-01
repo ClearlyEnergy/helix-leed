@@ -27,6 +27,8 @@ class LeedHelix:
         param_string = '&page='+str(page_num)+'&type=advanced&search[place_ids]='+geo_id+'&search[flat_rating_program_ids]=Certification%2F%2F37'
         if after_date is not None:
             param_string += '&search[after_date]='+after_date.strftime("%Y-%m-%d")
+        if before_date is not None:
+            param_string += '&search[before_date]='+before_date.strftime("%Y-%m-%d")
 
         page = requests.get(self.search_url+param_string)
         tree = html.fromstring(page.content)
