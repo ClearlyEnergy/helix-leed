@@ -48,8 +48,8 @@ class LeedHelix:
         param_string = '&page=1&type=advanced&search[place_ids]='+geo_id+'&search[flat_rating_program_ids]=Certification%2F%2F37'        
         if after_date is not None:
             param_string += '&search[after_date]='+after_date.strftime("%Y-%m-%d")
-#        
-#        &search[before_date]=2018-12-31
+        if before_date is not None:
+            param_string += '&search[before_date]='+before_date.strftime("%Y-%m-%d")
 
         page = requests.get(self.search_url+param_string)
         tree = html.fromstring(page.content)     
@@ -57,11 +57,11 @@ class LeedHelix:
         if not total_entries:
             return None
         else:
-            total_entries = re.findall('(\d+)', total_entries[0])
+            total_entries = re.findall('(\d*,*\d+)', total_entries[0])
             if len(total_entries) == 1:
                 num_pages = 1
             else:
-                num_pages = int(total_entries[2])//25 + 1
+                num_pages = int(total_entries[2].replace(',',''))//25 + 1
             return num_pages
     
     def query_leed_building_ids(self, geo_id, after_date=None, before_date=None):
