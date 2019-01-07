@@ -106,20 +106,20 @@ class LeedHelix:
         rating = tree.xpath('//p[@class="lead"]/strong/text()')
         rating = re.match('(LEED-HOMES).* (v\d{4}) (Silver|Certified|Gold|Platinum)', rating[0])
         if rating:
-            result['green_assessment_name'] = 'LEED for Homes'
-            result['green_assessment_property_source'] = 'U.S. Green Building Council'
-            result['green_assessment_property_rating'] = rating.group(3).upper()
-            result['green_assessment_property_version'] = rating.group(2)
-            result['green_assessment_property_url'] = self.activities_url+building_id
+            result['Green Assessment Name'] = 'LEED for Homes'
+            result['Green Assessment Property Source'] = 'U.S. Green Building Council'
+            result['Green Assessment Property Rating'] = rating.group(3).upper()
+            result['Green Assessment  Property Version'] = rating.group(2)
+            result['Green Assessment Property Url'] = self.activities_url+building_id
         else:
             return {'status': 'error', 'message': 'not rated'}
             
         date = tree.xpath('//p[@class="lead"]/text()')
         date = re.match('\non (\d{2}/\d{2}/\d{4})', date[1])
-        result['green_assessment_property_date'] = date.group(1)
+        result['Green Assessment Property Date'] = date.group(1)
         
         rating = tree.xpath('//h2[@class="points-achieved"]/span/text()')
-        result['green_assessment_property_extra_data'] = {'leed_score': rating[0]+'/'+rating[1]}
+        result['Green Assessment Property Extra Data'] = {'leed_score': rating[0]+'/'+rating[1]}
         
         property_type = tree.xpath('//table[@class="table"]/tr[th//text()[contains(., "Space Type")]]/td/text()')
         if property_type:
