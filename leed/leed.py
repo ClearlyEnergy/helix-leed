@@ -123,7 +123,7 @@ class LeedHelix:
         
         property_type = tree.xpath('//table[@class="table"]/tr[th//text()[contains(., "Space Type")]]/td/text()')
         if property_type:
-            result['property_type'] = property_type[0]
+            result['Property Type'] = property_type[0]
         
         address = tree.xpath('//address/a/text()')
         
@@ -135,24 +135,24 @@ class LeedHelix:
                     return {'status': 'error', 'message': 'address could not be parsed'}
 #            result['address_line_1'] = address[num_elem-4].lstrip()
             if address[0].lstrip() == 'InSite':
-                result['address_line_1'] = address[1].lstrip()
+                result['Address Line 1'] = address[1].lstrip()
             else:
-                result['address_line_1'] = address[0].lstrip()
-            result['city'] = address[num_elem-3].lstrip()
-            result['state'] = address[num_elem-2].lstrip()
+                result['Address Line 1'] = address[0].lstrip()
+            result['City'] = address[num_elem-3].lstrip()
+            result['State'] = address[num_elem-2].lstrip()
             
             # geocode results and add zip code
-            if result['address_line_1'] and result['city'] and result['state']:
-                geocode_result = self.gmaps.geocode(",".join([result['address_line_1'], result['city'], result['state']]))
+            if result['Address Line 1'] and result['City'] and result['State']:
+                geocode_result = self.gmaps.geocode(",".join([result['Address Line 1'], result['City'], result['State']]))
                 if geocode_result:
                     for comp in geocode_result[0]['address_components']:
                         if 'postal_code' in comp['types']:
-                            result['postal_code'] = comp['short_name']
+                            result['Postal Code'] = comp['short_name']
                             break
                     #reject results with "APPROXIMATE" or "RANGE_INTERPOLATED" location_type
                     if geocode_result[0]['geometry']['location_type'] in ('ROOFTOP','GEOMETRIC_CENTER'):
-                        result['latitude'] = geocode_result[0]['geometry']['location']['lat']
-                        result['longitude'] = geocode_result[0]['geometry']['location']['lng']
+                        result['Latitude'] = geocode_result[0]['geometry']['location']['lat']
+                        result['Longitude'] = geocode_result[0]['geometry']['location']['lng']
         
         result['status'] = 'success'
         
