@@ -120,9 +120,12 @@ class LeedHelix:
         result['Green Assessment Property Date'] = date.group(1)
         
         rating = tree.xpath('//h2[@class="points-achieved"]/span/text()')
-        print(rating)
         if rating:
-            result['Green Assessment Property Extra Data'] = {'leed_score': rating[0]+'/'+rating[1]}
+            if rating[0].strip() == 'Points awarded':
+                rating = tree.xpath('//h2[@class="points-achieved"]/text()')
+                result['Green Assessment Property Extra Data'] = {'leed_score': rating[0]}                
+            else:
+                result['Green Assessment Property Extra Data'] = {'leed_score': rating[0]+'/'+rating[1]}
         
         property_type = tree.xpath('//table[@class="table"]/tr[th//text()[contains(., "Space Type")]]/td/text()')
         if property_type:
