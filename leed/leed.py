@@ -154,7 +154,9 @@ class LeedHelix:
                     for comp in geocode_result[0]['address_components']:
                         if 'postal_code' in comp['types']:
                             result['Postal Code'] = comp['short_name']
-                            break
+                        else:
+                            result['status'] = 'error'
+                            return result
                     #reject results with "APPROXIMATE" or "RANGE_INTERPOLATED" location_type
                     if geocode_result[0]['geometry']['location_type'] in ('ROOFTOP','GEOMETRIC_CENTER'):
                         result['Latitude'] = geocode_result[0]['geometry']['location']['lat']
