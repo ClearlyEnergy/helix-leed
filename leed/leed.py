@@ -1,7 +1,8 @@
 import requests
 from lxml import html
 import re
-# import googlemaps
+import os
+import googlemaps
 
 """LEED connect to U.S. GBC GBIG database retrieves score and output values"""
 
@@ -13,7 +14,7 @@ class LeedHelix:
     def __init__(self):
         self.activities_url = GBIG_ACTIVITIES
         self.search_url = GBIG_ADVANCED
-#        self.gmaps = googlemaps.Client(os.environ.get('GOOGLEMAPS_KEY', ''))
+        self.gmaps = googlemaps.Client(os.environ.get('GOOGLEMAPS_KEY', ''))
 
     def __retrieve_list_content(self, page_num, geo_id, after_date=None, before_date=None):
         """Retrieve GBIG list page content
@@ -93,7 +94,6 @@ class LeedHelix:
            client.query_leed('/activities/leed-10391892')
         """
         result = {}
-        geocode = False  # Run geocoding inside SEED
         page = requests.get(self.activities_url+building_id)
         tree = html.fromstring(page.content)
 
@@ -145,21 +145,20 @@ class LeedHelix:
             result['City'] = address[num_elem-3].lstrip()
             result['State'] = address[num_elem-2].lstrip()
 
-            # geocode results and add zip code
-            if geocode:
-                if result['Address Line 1'] and result['City'] and result['State']:
-                    geocode_result = self.gmaps.geocode(",".join([result['Address Line 1'], result['City'], result['State']]))
-                    if geocode_result:
-                        for comp in geocode_result[0]['address_components']:
-                            if 'postal_code' in comp['types']:
-                                result['Postal Code'] = comp['short_name']
-                        if 'Postal Code' not in result:
-                            result['status'] = 'error'
-                            return result
-                        # reject results with "APPROXIMATE" or "RANGE_INTERPOLATED" location_type
-                        if geocode_result[0]['geometry']['location_type'] in ('ROOFTOP', 'GEOMETRIC_CENTER'):
-                            result['Latitude'] = geocode_result[0]['geometry']['location']['lat']
-                            result['Longitude'] = geocode_result[0]['geometry']['location']['lng']
+            # geocode results and add zip code, Run geocoding locally, required to get postal code (SEED won't run without it)
+            if result['Address Line 1'] and result['City'] and result['State']:
+                geocode_result = self.gmaps.geocode(",".join([result['Address Line 1'], result['City'], result['State']]))
+                if geocode_result:
+                    for comp in geocode_result[0]['address_components']:
+                        if 'postal_code' in comp['types']:
+                            result['Postal Code'] = comp['short_name']
+                    if 'Postal Code' not in result:
+                        result['status'] = 'error'
+                        return result
+                    # reject results with "APPROXIMATE" or "RANGE_INTERPOLATED" location_type
+                    if geocode_result[0]['geometry']['location_type'] in ('ROOFTOP', 'GEOMETRIC_CENTER'):
+                        result['Latitude'] = geocode_result[0]['geometry']['location']['lat']
+                        result['Longitude'] = geocode_result[0]['geometry']['location']['lng']
 
         result['status'] = 'success'
 
