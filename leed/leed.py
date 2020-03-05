@@ -11,10 +11,10 @@ GBIG_ADVANCED = 'http://www.gbig.org/search/advanced?&utf8=%E2%9C%94&search[incl
 
 
 class LeedHelix:
-    def __init__(self):
+    def __init__(self, googlemaps_key=None):
         self.activities_url = GBIG_ACTIVITIES
         self.search_url = GBIG_ADVANCED
-        self.gmaps = googlemaps.Client(os.environ.get('GOOGLEMAPS_KEY', ''))
+        self.gmaps = googlemaps.Client(googlemaps_key)
 
     def __retrieve_list_content(self, page_num, geo_id, after_date=None, before_date=None):
         """Retrieve GBIG list page content
