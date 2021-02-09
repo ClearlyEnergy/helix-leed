@@ -2,20 +2,20 @@ import requests
 from lxml import html
 import re
 import os
-import googlemaps
 
 """LEED connect to U.S. GBC GBIG database retrieves score and output values"""
 
 GBIG_ACTIVITIES = 'http://www.gbig.org'
 GBIG_ADVANCED = 'http://www.gbig.org/search/advanced?&utf8=%E2%9C%94&search[include_non_certified]=0&search[search_type]=Projects&search[text_search_mode]=all&view=list'
+MAPQUEST_API_KEY = os.environ.get('MAPQUEST_API_KEY',None)
 
 
 class LeedHelix:
     def __init__(self, googlemaps_key=None):
         self.activities_url = GBIG_ACTIVITIES
         self.search_url = GBIG_ADVANCED
-        self.gmaps = googlemaps.Client(googlemaps_key)
-
+        self.mapquest_api_key = MAPQUEST_API_KEY
+        
     def __retrieve_list_content(self, page_num, geo_id, after_date=None, before_date=None):
         """Retrieve GBIG list page content
         For example:
@@ -132,7 +132,7 @@ class LeedHelix:
         address = tree.xpath('//address/a/text()')
 
         if address:
-            # use google maps to get zip code
+            # use mapquest maps to get zip code
             address = address[0].split(',')
             num_elem = len(address)
             if num_elem < 4:
@@ -147,19 +147,23 @@ class LeedHelix:
 
             # geocode results and add zip code, Run geocoding locally, required to get postal code (SEED won't run without it)
             if result['Address Line 1'] and result['City'] and result['State']:
-                geocode_result = self.gmaps.geocode(",".join([result['Address Line 1'], result['City'], result['State']]))
-                if geocode_result:
-                    for comp in geocode_result[0]['address_components']:
-                        if 'postal_code' in comp['types']:
-                            result['Postal Code'] = comp['short_name']
-                    if 'Postal Code' not in result:
-                        result['status'] = 'error'
-                        return result
-                    # reject results with "APPROXIMATE" or "RANGE_INTERPOLATED" location_type
-                    if geocode_result[0]['geometry']['location_type'] in ('ROOFTOP', 'GEOMETRIC_CENTER'):
-                        result['Latitude'] = geocode_result[0]['geometry']['location']['lat']
-                        result['Longitude'] = geocode_result[0]['geometry']['location']['lng']
-
+                address_str = ",".join([result['Address Line 1'], result['City'], result['State']])
+                mapquest_url = 'http://www.mapquestapi.com/geocoding/v1/address?key='+self.mapquest_api_key+'&location='+address_str
+                geocode_result = requests.get(mapquest_url)
+                
+                if geocode_result.status_code == 200:
+                    geocode_result = geocode_result.json()
+                    for comp in geocode_result['results'][0]['locations']:
+                        if 'postalCode' in comp:
+                            result['Postal Code'] = comp['postalCode']
+                            result['Address Line 1'] = comp['street']
+                        else:
+                            result['status'] = 'error'
+                            return result
+                        # reject results with "APPROXIMATE" or "RANGE_INTERPOLATED" location_type
+                        if comp['geocodeQuality'] in ('POINT', 'ADDRESS'):
+                            result['Latitude'] = comp['latLng']['lat']
+                            result['Longitude'] = comp['latLng']['lng']
         result['status'] = 'success'
-
+        
         return result
