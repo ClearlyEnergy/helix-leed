@@ -11,10 +11,10 @@ MAPQUEST_API_KEY = os.environ.get('MAPQUEST_API_KEY',None)
 
 
 class LeedHelix:
-    def __init__(self, googlemaps_key=None):
+    def __init__(self, mapquest_api_key=None):
         self.activities_url = GBIG_ACTIVITIES
         self.search_url = GBIG_ADVANCED
-        self.mapquest_api_key = MAPQUEST_API_KEY
+        self.mapquest_api_key = mapquest_api_key
         
     def __retrieve_list_content(self, page_num, geo_id, after_date=None, before_date=None):
         """Retrieve GBIG list page content

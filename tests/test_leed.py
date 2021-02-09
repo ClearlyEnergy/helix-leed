@@ -9,7 +9,8 @@ from leed import leed
 class LeedTest(unittest.TestCase):
 
     def setUp(self):
-        self.leed = leed.LeedHelix()
+        mapquest_api_key = os.environ.get('MAPQUEST_API_KEY',None)
+        self.leed = leed.LeedHelix(mapquest_api_key)
 
     def test_page_has_score(self):
         result = self.leed.query_leed('/activities/leed-10549162')
