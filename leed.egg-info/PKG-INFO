@@ -6,22 +6,6 @@ Home-page: https://github.com/ClearlyEnergy/helix-leed.git
 Author: ClearlyEnergy
 Author-email: info@clearlyenergy.com
 License: MIT
-Description: HELIX-LEED
-        ==========
-        
-        Connectivity to U.S. Green Building Council to collect LEED for Homes data for HELIX
-        
-        Installation
-        ------------
-        
-        - git clone https://github.com/ClearlyEnergy/helix-leed.git
-        - pip install .
-        
-        Test Coverage
-        -------------
-        
-        - python setup.py test
-        
 Keywords: leed property load
 Platform: UNKNOWN
 Classifier: Development Status :: 3 - Alpha
@@ -34,5 +18,23 @@ Classifier: Programming Language :: Python :: 3
 Classifier: Programming Language :: Python :: 3.3
 Classifier: Programming Language :: Python :: 3.4
 Classifier: Programming Language :: Python :: 3.5
-Provides-Extra: test
 Provides-Extra: dev
+Provides-Extra: test
+
+HELIX-LEED
+==========
+
+Connectivity to U.S. Green Building Council to collect LEED for Homes data for HELIX
+
+Installation
+------------
+
+- git clone https://github.com/ClearlyEnergy/helix-leed.git
+- pip install .
+
+Test Coverage
+-------------
+
+- python setup.py test
+
+

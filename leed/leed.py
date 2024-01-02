@@ -1,6 +1,8 @@
 import requests
+from datetime import date, timedelta, datetime
 from lxml import html
 import re
+import time
 import os
 
 """LEED connect to U.S. GBC GBIG database retrieves score and output values"""
@@ -98,7 +100,16 @@ class LeedHelix:
         tree = html.fromstring(page.content)
 
         title = tree.xpath('//h1/text()')
+        # second attempt at loading page
+        if title[0].strip() == 'GBIG':
+            time.sleep(3)
+            page = requests.get(self.activities_url+building_id)
+            tree = html.fromstring(page.content)
+            title = tree.xpath('//h1/text()')
+
         if title[0] == "Hmm, the page you're looking for can't be found.":
+            return {'status': 'error', 'message': title[0]}
+        if title[0].strip() == "GBIG":
             return {'status': 'error', 'message': title[0]}
 
         rating = tree.xpath('//p[@class="lead"]/strong/text()')
@@ -167,3 +178,14 @@ class LeedHelix:
         result['status'] = 'success'
         
         return result
+    
+ # Run with:  python3 -m leed.leed
+if __name__ == '__main__':
+    leed_client = LeedHelix(MAPQUEST_API_KEY)
+    org = {'leed_geo_id': '2001', 'start_date': date.today()-timedelta(365), 'end_date': date.today()}
+    leed_ids = leed_client.query_leed_building_ids(org['leed_geo_id'], org['start_date'], org['end_date'])
+    print(len(leed_ids))
+    for leed_id in leed_ids:
+        print(leed_id)
+        leed_data = leed_client.query_leed(leed_id)
+        print(leed_data)

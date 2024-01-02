@@ -9,6 +9,10 @@ Installation
 - git clone https://github.com/ClearlyEnergy/helix-leed.git
 - pip install .
 
+Standalone Run
+--------------
+python3 -m leed.leed
+
 Test Coverage
 -------------
 
